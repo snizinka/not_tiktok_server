@@ -11,6 +11,8 @@ class GetProfile extends User {
 
         const profile = await query(profileQuery)
 
+        console.log(profileQuery)
+
         return profile[0]
     }
 }

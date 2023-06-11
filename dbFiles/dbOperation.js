@@ -24,45 +24,18 @@ const GetPostById = require('./models/Post/GetPostById');
 const ChangePostBlockState = require('./models/Admin/ChangePostBlockState');
 const GetPostByIdWithBlocked = require('./models/Post/GetPostByIdWithBlocked');
 const GetRangePostViewsById = require('./models/Post/Views/GetRangePostViewsById');
-const nodemailer = require('nodemailer');
 const GetPostRequests = require('./models/Request/GetPostRequests');
 const DeleteRequestNotification = require('./models/Request/DeleteRequestNotification');
 
 const query = util.promisify(config.query).bind(config)
 
-var transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: 'snizinkavolshebna@gmail.com',
-        pass: 'mdzvcgvzmdzqscnl'
-    }
-});
-
 const signUp = async (email, password, username) => {
-    let confirmationNumber = makeid(5);
-    var mailOptions = {
-        from: 'Not TikTok <snizinkavolshebna@gmail.com>',
-        to: email,
-        subject: 'Not TikTok account Confirmation',
-        text: confirmationNumber
-    }
-    try {
-        return new Promise((resolve, reject) => {
+    const USERNAME = username.replace(/["\\]/g, (match) => match === '"' ? '""' : '\\\\')
+    const PASSWORD = password.replace(/["\\]/g, (match) => match === '"' ? '""' : '\\\\')
+    const EMAIL = email.replace(/["\\]/g, (match) => match === '"' ? '""' : '\\\\')
 
-            transporter.sendMail(mailOptions, function (err, info) {
-                if (err) {
-                    reject({ error: 'Mail not found' });
-                } else {
-                    resolve({ confirmationNumber: confirmationNumber, email: email, password: password, username: username });
-                }
-            })
-        })
-    }
-    catch (err) {
-        resolve({ error: 'Mail not found' })
-    }
+    const newAccount = await query(`INSERT INTO nottiktok.users (username, userLink, password, mailAddress) VALUES('${USERNAME}', '${USERNAME}', '${PASSWORD}', '${EMAIL}')`)
+    await query(`INSERT INTO nottiktok.profile_settings (user_id, is_profile_private, show_profile_posts, recomend_user_posts) VALUES(${newAccount.insertId}, 'false', 'true', 'true')`)
 }
 
 
@@ -381,8 +354,8 @@ const loadPostAnalytics = async (id) => {
     response = await response[0].getData(1)
     let views = await GetRangePostViewsById.getPostAnalytics(id)
 
-    for(let i = 0; i < views.length; i++) {
-        views[i].dates = views[i].dates.split(',') 
+    for (let i = 0; i < views.length; i++) {
+        views[i].dates = views[i].dates.split(',')
     }
 
     return { response, views }

@@ -21,7 +21,7 @@ const server = http.createServer(app)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'C:/Users/Snizinka/Desktop/not_tiktok/src/post_content/pictures')
+        cb(null, 'C:/Users/USER/Desktop/not_tiktok/front/not_tiktok/src/post_content/pictures')
     },
     filename: function (req, file, cb) {
         const searchString = '.';
